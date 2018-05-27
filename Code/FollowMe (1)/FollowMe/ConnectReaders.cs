@@ -197,6 +197,134 @@ namespace FollowMe
              bll.WriteListEPCToDB(tagdb, ((int)dtReaders.Rows[row][0]));
            
         }
+        //////////////write to tag ////////
+        public string StrToWrite = "";
+        public string StrBefore = "";
+        public char[] CharStr = new char[50];
+        string writeTag;
 
+        /// <summary>
+        /// Writes Tag ID Single
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        public void writeTagButton(string writeTag)
+        {
+            try
+            {
+                //tagOpProtocolAntenna();
+                this.writeTag = writeTag;
+                pvtWriteTagEPC();
+
+            }
+            catch (Exception)
+            {
+            }
+        }
+
+
+
+        /// <summary>
+        /// Helper function for Write Tag ID Button
+        /// </summary>
+        /// <param name="sender">same as writeTagButton_Click</param>
+        /// <param name="e">same as writeTagButton_Click</param>
+        private void pvtWriteTagEPC()
+        {
+            try
+            {
+
+                TagData tagID = validateEpcStringAndReturnTagData(writeTag);
+
+                TagFilter filter;
+
+                StrToWrite = writeTag;
+                ConvertStringToCharArray();
+                StrBefore = StrToWrite;
+                ConvertStringToCharArray();
+                writeTag = StrToWrite;
+                DateTime timeBeforeRead = DateTime.Now;
+                //reader.WriteTag(filter, tagID);
+                DateTime timeAfterRead = DateTime.Now;
+                TimeSpan timeElapsed = timeAfterRead - timeBeforeRead;
+                AddOneToString(StrToWrite.Length - 1);
+                converCharArrayToString();
+                writeTag = StrToWrite;
+            }
+            catch (Exception e) { }
+        }
+
+        /// <summary>
+        /// Validates EPC String and formats valid strings into EPC
+        /// </summary>
+        /// <param name="epcString">Valid/Invalid EPC String</param>
+        /// <returns>Valid TagData used for selection</returns>
+        public static TagData validateEpcStringAndReturnTagData(string epcString)
+        {
+            TagData validTagData = null;
+            if (epcString.Contains(" "))
+            {
+                validTagData = null;
+            }
+            else
+            {
+                if (epcString.Length == 0)
+                {
+                    validTagData = null;
+                }
+                else
+                {
+                    if (epcString.Contains("0x"))
+                    {
+                        validTagData = new TagData(epcString.Remove(0, 2));
+                    }
+                    validTagData = new TagData(epcString);
+                }
+            }
+            return validTagData;
+        }
+
+        void ConvertStringToCharArray()
+        {
+            StrBefore = StrToWrite;
+            for (int i = 0; i < StrToWrite.Length; i++)
+            {
+                CharStr[i] = StrToWrite[i];
+            }
+        }
+        void converCharArrayToString()
+        {
+            StrToWrite = "";
+            for (int i = 0; i < CharStr.Length; i++)
+            {
+                if (CharStr[i] != '\0')
+                {
+                    StrToWrite += CharStr[i];
+                }
+
+            }
+        }
+
+        void AddOneToString(int i)
+        {
+            if (i > StrToWrite.Length)
+            {
+                return;
+            }
+            if (StrToWrite[i] == '9')
+            {
+                CharStr[i] = 'A';
+            }
+            else
+            {
+                CharStr[i] = StrToWrite[i];
+                CharStr[i]++;
+            }
+            if (StrToWrite[i] > 'F')
+            {
+                AddOneToString(i - 1);
+                CharStr[i] = '0';
+            }
+        }
     }
 }
