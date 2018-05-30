@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
@@ -46,33 +46,23 @@ namespace FollowMe.Forms
             RequiredFieldValidator1.ErrorMessage = "You must enter data!";
             RequiredFieldValidator1.ControlToValidate = "txtName";
             //my.Controls.Add(RequiredFieldValidator1);
-            dal = new Dal();
-
-            List<SqlParameter> l = new List<SqlParameter>();
-            l.Add(new SqlParameter("@company", (txtCompany.Text)));
-            l.Add(new SqlParameter("Pass", (txtPass.Text)));
+            FollowMeDBEntities entity = new FollowMeDBEntities();
             //בדיקה שאין שם חברה וקוד זהה במערכת
-            object o = dal.ReadScalar("CheckPass", l);
-            if (o == null)
+            if (entity.Pass(txtPass.Text, txtCompany.Text).ToList().Count == 0)
             {
-                l.Clear();
-                l = new List<SqlParameter>();
-                l.Add(new SqlParameter("FirstName", (txtName.Text)));
-                l.Add(new SqlParameter("LastName", (txtLName.Text)));
-                l.Add(new SqlParameter("Pass", (txtPass.Text)));
-                l.Add(new SqlParameter("Company", (txtCompany.Text)));
-                l.Add(new SqlParameter("Address", (txtAddress.Text)));
-                l.Add(new SqlParameter("Phone", txtPhone.Text));
-                dal.WriteToDB("Owners", l);
+                entity.OwnersInsert(txtName.Text, txtLName.Text, txtPass.Text
+                , txtCompany.Text
+                , txtAddress.Text
+                , txtPhone.Text);
                 if (Session["PreviousPage"] == null)
                 {
                     ChangeVisible();
                 }
                 else
                 {
-                    if (Session["PreviousPage"].ToString().Equals("ASP.tags_aspx"))
+                    if (Session["PreviousPage"].ToString().Equals("ASP.Orders_aspx"))
                     {
-                        Server.Transfer("Tags.aspx");
+                        Server.Transfer("Orders.aspx");
                     }
                 }
             }
