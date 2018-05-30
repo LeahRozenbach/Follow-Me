@@ -1,4 +1,5 @@
-﻿<%@ Page Title="" Language="C#" MasterPageFile="~/Shared/Customer.Master" AutoEventWireup="true" CodeBehind="Owner.aspx.cs" Inherits="FollowMe.Forms.Owner" EnableViewState="true" %>
+
+<%@ Page Title="" Language="C#" MasterPageFile="~/Shared/Customer.Master" AutoEventWireup="true" CodeBehind="Owner.aspx.cs" Inherits="FollowMe.Forms.Owner" EnableViewState="true" %>
 
 
 <asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
@@ -166,7 +167,7 @@
                     <asp:RequiredFieldValidator ID="RequiredFieldValidator5" runat="server" ErrorMessage="You must enter data!"
                         ControlToValidate="txtPhone" Display="Dynamic"></asp:RequiredFieldValidator>
                     <asp:RegularExpressionValidator ID="RegularExpressionValidator3" runat="server" ControlToValidate="txtPhone"
-                        Display="Dynamic" ErrorMessage="Phone number is incorrect!" ValidationExpression="^0(([57]\d)|[23489])-[2-9]\d{6}$"></asp:RegularExpressionValidator>
+                        Display="Dynamic" ErrorMessage="Phone number is incorrect!" ValidationExpression="^0(([57]\d)|[0234689])-[0-9]\d{6}$"></asp:RegularExpressionValidator>
                 </asp:TableCell>
             </asp:TableRow>
         </asp:Table>
