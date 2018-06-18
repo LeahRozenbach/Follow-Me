@@ -1,4 +1,4 @@
-﻿<%@ Page Title="" Language="C#" MasterPageFile="~/Shared/Site1.Master" AutoEventWireup="true" CodeBehind="NewProcess.aspx.cs" Inherits="FollowMe.Forms.NewProcess" %>
+﻿<%@ Page Title="" Language="C#" MasterPageFile="~/Shared/Manager.Master" AutoEventWireup="true" CodeBehind="NewProcess.aspx.cs" Inherits="FollowMe.Forms.NewProcess" %>
 
 <%@ Register Src="~/Forms/ucStation.ascx" TagPrefix="uc1" TagName="ucStation" %>
 
@@ -55,7 +55,7 @@
     <br />
     <br />
     <br />
-    <asp:Button ID="btnEdit" runat="server" CssClass="button" Text="extended Edit"
+    <asp:Button ID="btnEdit" runat="server" CssClass="button" Text="Edit"
         OnClick="btnEdit_Click" />
     <asp:Button ID="btnNew" runat="server" CssClass="button" Text="Create a new washing process"
         OnClick="btnNew_Click" />
@@ -109,10 +109,11 @@
         <br />
         <br />
         <asp:PlaceHolder ID="PlaceHolder1" runat="server">
-            <asp:Panel ID="pnlStation" runat="server">
+            <asp:Panel ID="pnlStation" runat="server" Width="800px">
             </asp:Panel>
         </asp:PlaceHolder>
-
+           <br />
+    <br />
         <asp:Button ID="btnOk" runat="server" CssClass="button" Text="Finish" OnClick="btnOk_Click" Visible="false" />
         <asp:Button ID="btnCancel" runat="server" CssClass="button" Text="Cancel" OnClick="btnCancel_Click" />
     </asp:Panel>
@@ -120,3 +121,4 @@
     <br />
     <br />
 </asp:Content>
+
