@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -14,7 +14,7 @@ namespace FollowMe.Forms
 
         DataTable dtReaders;
         DataTable dtColors;
-        Dal dal;
+        FollowMeDBEntities entity = new FollowMeDBEntities();
         static int i = 0;
         ucStation uc;
         List<ucStation> lUcStation;
@@ -35,21 +35,18 @@ namespace FollowMe.Forms
         {
             if (!IsPostBack)
             {
-                dal = new Dal();
-                dtReaders = dal.GetTable("Station");
-                ddlReaders.DataSource = dtReaders;
+                ddlReaders.DataSource = entity.Station.ToList();
                 ddlReaders.DataTextField = "Name";
                 ddlReaders.DataValueField = "StationId";
                 ddlReaders.DataBind();
 
 
 
-                dtColors = dal.GetTable("Colors");
-                ddlColor.DataSource = dtColors;
+                ddlColor.DataSource = entity.Colors.ToList();
                 ddlColor.DataTextField = "ColorName";
                 ddlColor.DataValueField = "ColorId";
                 ddlColor.DataBind();
-                Session["dtColors"] = dtColors;
+                Session["dtColors"] = entity.Colors.ToList();
             }
             else
             {
@@ -71,7 +68,7 @@ namespace FollowMe.Forms
             List<ucStation> lEzer = new List<ucStation>();
             foreach (ucStation item in LUcStation)
             {
-                UcStation = this.LoadControl("~/ucStation.ascx") as ucStation;
+                UcStation = this.LoadControl("ucStation.ascx") as ucStation;
                 UcStation.TypeId = item.TypeId;
                 UcStation.Type = item.Type;
                 UcStation.Time = item.Time;
@@ -97,7 +94,7 @@ namespace FollowMe.Forms
                 btnOk.Visible = true;
                 ddlReaders.Enabled = false;
                 btnChoose.Text = "Add station";
-                uc = this.LoadControl("~/ucStation.ascx") as ucStation;
+                uc = this.LoadControl("ucStation.ascx") as ucStation;
                 uc.TypeId = Convert.ToInt32(ddlReaders.SelectedValue);
                 uc.Type = ddlReaders.SelectedItem.ToString();
                 uc.OnCancel += new Cancellation(UcStation_OnCancel);
@@ -120,38 +117,15 @@ namespace FollowMe.Forms
             }
             else
             {
-                dal = new Dal();
-                List<SqlParameter> lParam = new List<SqlParameter>();
-                lParam.Add(new SqlParameter("Name", txtProcess.Text));
                 bool flag = true;
                 int id = 0;
-                if (Session["dtColors"] != null)
-                    dtColors = Session["dtColors"] as DataTable;
-                for (int i = 0; flag == true && i < dtColors.Rows.Count; i++)
-                {
-                    if (((string)dtColors.Rows[i][1]).CompareTo(txtColor.Text) == 0)
-                    {
-                        flag = false;
-                        id = (int)dtColors.Rows[i][0];
-                    }
-                }
-                if (flag)
-                {
-                    List<SqlParameter> lParam1 = new List<SqlParameter>();
-                    lParam1.Add(new SqlParameter("ColorName", txtColor.Text));
-                    dal.WriteToDB("Colors", lParam1);
-                    id = (int)dal.ReadScalar("select top 1 ColorId from Colors order by ColorId desc");
-                }
-                lParam.Add(new SqlParameter("ColorId", id));
-                dal.WriteToDB("Processes", lParam);
+                if (!entity.Colors.Any(x => x.ColorName == txtColor.Text))
+                    entity.ColorsInsert(txtColor.Text);
+                id = entity.Colors.Where(x => x.ColorName == txtColor.Text).First().ColorId;            
+                 entity.ProcessesInsert(txtProcess.Text, id);
                 foreach (ucStation item in LUcStation)
                 {
-                    lParam.Clear();
-                    lParam = new List<SqlParameter>();
-                    lParam.Add(new SqlParameter("Station", item.TypeId));
-                    lParam.Add(new SqlParameter("Minutes", item.Time));
-                    lParam.Add(new SqlParameter("MoreDetails", item.Details));
-                    dal.WriteToDB("ProcessDetails", lParam);
+                    entity.ProcessDetailsInsert(Convert.ToInt32(item.TypeId),Convert.ToInt32(item.Time),item.Details);
                 }
                 if (Session["edit"] != null)
                 {
@@ -226,9 +200,9 @@ namespace FollowMe.Forms
                     if (Session["dtColors"] != null)
                     {
                         dtColors = Session["dtColors"] as DataTable;
-                        for (int i = 0; flag == true && i < dtColors.Rows.Count; i++)
+                        for (int i = 0; flag == true && i < entity.Colors.ToList().Count; i++)
                         {
-                            if (((int)dtColors.Rows[i][0]) == Convert.ToInt32((gvr.Cells[3].Text)))
+                            if (((int)entity.Colors.ToList()[i].ColorId) == Convert.ToInt32((gvr.Cells[3].Text)))
                             {
                                 flag = false;
                                 ddlColor.SelectedIndex = i;
@@ -236,18 +210,15 @@ namespace FollowMe.Forms
                         }
                     }
                     txtColor.Text = gvr.Cells[3].Text;
-                    dal = new Dal();
-                    List<SqlParameter> l = new List<SqlParameter>();
-                    l.Add(new SqlParameter("ProcessId", Convert.ToInt32(gvr.Cells[1].Text)));
-                    DataTable dtProcessDetails = dal.GetTable("ProcessDetails", l);
+                    var dtProcessDetails =entity.ProcessDetailsSelect(Convert.ToInt32(gvr.Cells[1].Text)).ToList();
                     pnlStation.Controls.Clear();
-                    for (int i = 0; i < dtProcessDetails.Rows.Count; i++)
+                    for (int i = 0; i < dtProcessDetails.Count; i++)
                     {
-                        uc = this.LoadControl("~/ucStation.ascx") as ucStation;
-                        uc.TypeId = (int)(dtProcessDetails.Rows[i]["ProcessDetailId"]);
-                        uc.Type = dtProcessDetails.Rows[i]["Station"].ToString();
-                        uc.Time = dtProcessDetails.Rows[i]["Minutes"].ToString();
-                        uc.Details = dtProcessDetails.Rows[i]["More details"].ToString();
+                        uc = this.LoadControl("ucStation.ascx") as ucStation;
+                        uc.TypeId = (int)(dtProcessDetails[i].StationId);
+                        uc.Type = dtProcessDetails[i].Station.ToString();
+                        uc.Time = dtProcessDetails[i].Minutes.ToString();
+                        uc.Details = dtProcessDetails[i].More_details.ToString();
                         uc.OnCancel += new Cancellation(UcStation_OnCancel);
                         pnlStation.Controls.Add(uc);
                         LUcStation.Add(uc);
