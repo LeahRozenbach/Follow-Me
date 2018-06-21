@@ -1,4 +1,5 @@
-﻿<%@ Control Language="C#" AutoEventWireup="true" CodeBehind="ucStation.ascx.cs" Inherits="FollowMe.Forms.ucStation" %>
+<%@ Control Language="C#" AutoEventWireup="true" CodeBehind="ucStation.ascx.cs" Inherits="FollowMe.Forms.ucStation" %>
+<asp:Panel runat="server" BorderStyle="Solid" BorderWidth="1px" BorderColor="SkyBlue"> 
 <asp:Label ID="Label1" runat="server" Text="Station: " ></asp:Label>
  
  <asp:Label ID="lblStation" runat="server" Width="100px"  Text=""></asp:Label>
@@ -15,4 +16,4 @@
 ControlToValidate="txtTime" Display="Dynamic" 
  ErrorMessage="You must enter time!"></asp:RequiredFieldValidator>
 
-<br />
+<br /></asp:Panel>
